@@ -1,0 +1,31 @@
+meta {
+  name: Create poll
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/polls
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "question": "Hva skal vi spise?",
+    "options": [
+      { "text": "Pizza" },
+      { "text": "Sushi" }
+    ]
+  }
+  
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

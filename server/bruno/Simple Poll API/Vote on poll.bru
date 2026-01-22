@@ -1,0 +1,27 @@
+meta {
+  name: Vote on poll
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/polls/poll_123/votes
+  body: json
+  auth: inherit
+}
+
+headers {
+  Content-Type: application/json
+}
+
+body:json {
+  {
+    "optionId": "option_1"
+  }
+  
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

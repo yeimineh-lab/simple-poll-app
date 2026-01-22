@@ -1,129 +1,146 @@
 # Simple Poll App
 
 ## Project Description
-This project is a simple full-stack poll application.
+Simple Poll App is a small full-stack application for creating polls, collecting votes, and viewing results.
 
-Users can create polls with a question and multiple options, share them with others, collect votes, and view results.  
-The project is intentionally kept simple and focuses on demonstrating a **clear development process**, **structured planning**, and **basic full-stack skills** rather than building a complex system.
+The project is intentionally kept simple and focuses on **API design**, **incremental development**, and **clear project structure**, rather than building a complete production system.
+
+This repository represents an early scaffold of the application, not a fully implemented solution.
 
 ---
 
 ## Purpose and Goal
-The purpose of this project is to design and develop a simple full-stack application that demonstrates:
+The purpose of this project is to demonstrate:
 
-- Incremental development
-- Clear prioritization of features
-- Separation of client, server, and database
-- Basic project management and Git workflow
+- RESTful-ish API design
+- Clear separation of client and server
+- Incremental development using horizontal slices
+- API documentation and testing
+- Proper use of Git and project management tools
 
-The goal is to show *how* the application is built, not only *what* is built.
+The goal is to show **how the system is designed and structured**, not to fully implement all features.
 
 ---
 
 ## Feature Map (Prioritized)
 
-### Core Features (Must Have)
-- User registration and login
+### Core Features (Implemented as API scaffold)
 - Create a poll with a question and multiple options
+- List available polls
 - Vote on a poll
 - View poll results
-- Persistent data storage using PostgreSQL
 
-### Secondary Features (Should Have)
-- Edit or close a poll (poll owner only)
+> All core features are currently implemented as **stub endpoints** without persistent storage.
+
+### Planned Features (Not part of this assignment)
+- User registration and authentication
+- Poll ownership
+- Persistent data storage (PostgreSQL)
 - Prevent multiple votes per user
-- Share polls via a unique URL
-
-### Optional Features (Nice to Have)
-- Progressive Web App (PWA) support
-- Offline access to previously viewed polls
-- Simple UI improvements
-
-This prioritization ensures that essential functionality is implemented first before moving on to enhancements.
 
 ---
 
 ## Development Plan – Horizontal Slices
 
-The project is developed using **horizontal slices**, where each version results in a complete and runnable application with limited functionality.
+The project follows a **horizontal slice** approach, where each version results in a runnable application with limited functionality.
 
-### v0.0.1 – Minimal Working Application
-**Goal:** A running full-stack application with basic functionality.
-
+### v0.0.1 – API Scaffold (Current)
 - Express server setup
-- REST-like API
-- Create and view a single poll
-- PostgreSQL database connection
-- Simple client UI
-- No authentication
+- REST-like API structure
+- Poll-related endpoints with stub responses
+- OpenAPI documentation
+- API testing setup using Bruno
 
-### v0.1.0 – User Accounts
-**Goal:** Introduce ownership and basic security.
+Future versions are planned but not implemented as part of this assignment.
 
-- User registration and login
-- Polls linked to a user
-- One vote per user per poll
+---
 
-### v0.2.0 – Sharing and Management
-**Goal:** Make the app usable for real users.
+## API Documentation
 
-- Share polls via URL
-- Close polls to stop voting
-- View poll results clearly
+The backend exposes a REST-like API for managing polls.
 
-### v0.3.0 – PWA and Offline Support
-**Goal:** Improve user experience.
+The API is documented using **OpenAPI 3.0**:
 
-- Progressive Web App setup
-- Cached static assets
-- Offline viewing of previously visited polls
+
+The OpenAPI specification describes:
+- Available endpoints
+- Request and response formats
+- Example payloads
+- HTTP status codes
+
+The API is intentionally scaffolded and does not persist data.
+
+---
+
+## API Testing
+
+API requests are tested using **Bruno**.
+
+The Bruno collection is included in the repository:
+
+
+The collection contains requests for:
+- List polls
+- Create poll
+- Vote on poll
+- Get poll results
+
+A local environment is configured using a base URL variable.
 
 ---
 
 ## Project Structure
+
 simple-poll-app/
 ├── client/
 ├── server/
+│ ├── src/
+│ │ ├── routes/
+│ │ ├── controllers/
+│ │ └── docs/
+│ │ └── openapi.yaml
+│ └── bruno/
 ├── README.md
 
 
-- `client/` contains the frontend
-- `server/` contains the backend and API
-- The structure is kept simple to support incremental development
+- `client/` contains the frontend (not implemented)
+- `server/` contains the backend API
+- `docs/` contains OpenAPI documentation
+- `bruno/` contains API test collections
 
 ---
 
 ## Project Management
-GitHub Projects is used as the project management tool.
 
-A Kanban board is set up with the following columns:
+GitHub Projects is used for project management.
+
+A simple Kanban board is set up with the following columns:
 - Todo
 - In Progress
 - Done
 
-Tasks are grouped by version (v0.0.1, v0.1.0, etc.) to reflect horizontal slices and development priorities.
+Tasks are grouped to reflect development steps and horizontal slices.
 
 ---
 
 ## Git Workflow
+
 The project follows a structured Git workflow:
+- Small, focused commits
+- One logical change per commit
+- Clear and descriptive commit messages
 
-- One task per commit
-- Small, focused commits with clear messages
-- Each commit represents a meaningful step in development
-
-The initial commit contains multiple setup steps.  
-Going forward, development follows smaller and more focused commits to align with good Git practices.
+This demonstrates good Git practices and incremental development.
 
 ---
 
 ## Reflection
-This project was revised based on feedback from the assignment review.
 
-Improvements include:
-- Introducing a prioritized feature map
-- Using horizontal slices instead of isolated features
-- Adding a clear project management structure
-- Adopting better Git commit practices
+This project was developed as part of an assignment focusing on API design and project structure.
 
-These changes ensure the project is structured, realistic, and aligned with the assignment requirements.
+Key takeaways:
+- Designing the API first clarified responsibilities between client and server
+- OpenAPI made the API easier to reason about and communicate
+- Using Bruno ensured the API could be tested independently of the client
+
+The project is intentionally incomplete and serves as a foundation for further development.

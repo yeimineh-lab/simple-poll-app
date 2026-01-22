@@ -1,0 +1,22 @@
+meta {
+  name: List polls
+  type: http
+  seq: 1
+}
+
+get {
+  url: '''
+    {{baseUrl}}/polls
+    {{baseUrl}}/polls
+    {{baseUrl}}/polls
+    {{baseUrl}}/polls
+    {{baseUrl}}/polls
+    {{baseUrl}}/polls
+'''
+  body: none
+  auth: inherit
+}
+
+settings {
+  encodeUrl: true
+}
