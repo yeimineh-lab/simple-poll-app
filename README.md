@@ -161,7 +161,8 @@ simple-poll-app/
 ### Server
 ```bash
 cd server
-node src/index.js
+npm install
+npm run dev
 Client
 Open in a browser:
 
@@ -170,7 +171,7 @@ http://localhost:3000/index.html
 Legal Documents
 Terms of Service: http://localhost:3000/TERMS.md
 
-Privacy Policy: http://localhost:3000/PRIVACY.md
+Privacy Policy: http://localhost:3000/PRIVACY.MD
 
 Reflection
 This project was developed as part of an assignment focused on user handling, privacy, and API architecture.
