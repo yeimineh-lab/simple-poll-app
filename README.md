@@ -1,67 +1,66 @@
 # Simple Poll App
 
-## Project Description
+## Overview
 Simple Poll App is a small full-stack application for creating polls, collecting votes, and viewing results.
 
-The project is intentionally kept simple and focuses on **API design**, **incremental development**, **separation of concerns**, and **responsible user handling**, rather than building a full production system.
+The project is intentionally minimal and focuses on **API design**, **separation of concerns**, **incremental development**, and **responsible user data handling**, rather than building a feature-complete production system.
 
-This repository represents an early but functional stage of the application.
+The repository represents an early but functional stage of a system designed for clarity, correctness, and extensibility.
 
 ---
 
-## Purpose and Goal
-The purpose of this project is to demonstrate:
+## Purpose
+The primary goal of this project is to demonstrate:
 
-- REST-like API design
+- REST-style API design
 - Clear separation between client, API, authentication, and storage
 - Incremental development using horizontal slices
-- User account handling with explicit consent
+- Explicit user consent handling
 - Data minimization and privacy-aware design
 - API documentation and testing
-- Proper use of Git and project structure
+- Clean project structure and version control practices
 
-The goal is to show **how the system is designed, structured, and reasoned about**, not to build a complete commercial product.
+The emphasis is on **how the system is designed and reasoned about**, not on delivering a commercial product.
 
 ---
 
-## Feature Map
+## Features
 
-### Poll Features
-- Create a poll with a question and multiple options
+### Polls
+- Create polls with a question and multiple options
 - List available polls
 - Vote on a poll
 - View poll results
 
-Polls are persisted using JSON storage (no database).
+Poll data is persisted using JSON storage to keep the system simple and transparent.
 
 ---
 
-## User Accounts (Assignment Focus)
+## User Accounts
 
-### Data Minimization (GDPR)
-The application stores the minimum required to support user accounts:
+### Data Minimization
+The application stores only the data required to support user accounts:
 
 - `id` (UUID)
 - `username` (public handle)
-- `passwordHash` (bcrypt hash, never plain text)
+- `passwordHash` (bcrypt hash, never stored in plain text)
 - `createdAt`
 - Consent records:
-  - Terms of Service acceptedAt + version
-  - Privacy Policy acceptedAt + version
+  - Terms of Service (`acceptedAt`, `version`)
+  - Privacy Policy (`acceptedAt`, `version`)
 
-The application **does not** collect:
-- Real name
-- Email address
+The application intentionally does **not** collect:
+- Real names
+- Email addresses
 - Location data
-- Analytics identifiers
+- Analytics or tracking identifiers
 
 ---
 
 ### Account Endpoints
 
 - **POST `/api/v1/users`**  
-  Creates a user account.  
-  Requires explicit consent: `tosAccepted: true`.
+  Creates a user account. Requires explicit consent to Terms of Service and Privacy Policy.
 
 - **POST `/api/v1/auth/login`**  
   Authenticates a user and returns a bearer token.
@@ -74,7 +73,7 @@ The application **does not** collect:
 
 ---
 
-### Personal Data vs Public Contributions
+### Personal Data and Public Contributions
 When a user deletes their account:
 
 - All **personal account data** is removed from storage
@@ -90,38 +89,38 @@ This preserves application integrity while respecting user privacy.
 ## Consent Handling
 - Users must actively accept the Terms of Service and Privacy Policy to create an account
 - Consent timestamps and document versions are stored
-- Users can withdraw consent at any time by deleting their account
-- Deleting an account invalidates the authentication token immediately
+- Users may withdraw consent at any time by deleting their account
+- Account deletion immediately invalidates authentication tokens
 
 ---
 
-## Architecture Notes
-The project follows separation of concerns:
+## Architecture
+The application follows a clear separation of concerns:
 
 - **Routes** define HTTP endpoints
-- **Auth middleware** handles authentication and authorization
-- **Storage layer** abstracts persistence (JSON files)
-- **Client** is a simple HTML interface consuming the API
+- **Authentication middleware** handles authorization and identity
+- **Storage layer** abstracts persistence using JSON files
+- **Client** is a minimal HTML interface consuming the API
 
-Authentication is token-based and intentionally simple to support learning goals.
+Authentication is token-based and intentionally simple to support learning and clarity.
 
 ---
 
-## Development Approach – Horizontal Slices
-The project was developed using a horizontal slice approach, where each step results in a runnable system.
+## Development Approach
+The project was developed using a **horizontal slice** approach, where each step results in a runnable system.
 
-Initial poll endpoints were implemented as stubs and later extended with persistence and user ownership as part of the user assignment.
+Initial poll endpoints were implemented as stubs and later extended with persistence and user ownership as part of the user account assignment.
+
+This approach allows functionality, architecture, and data concerns to evolve together.
 
 ---
 
 ## API Documentation
-The API is documented using **OpenAPI 3.0**.
+The backend API is documented using **OpenAPI 3.0**.
 
-The OpenAPI specification describes:
-- Available endpoints
-- Request and response formats
-- Example payloads
-- HTTP status codes
+- 📄 OpenAPI specification: [`server/docs/openapi.yaml`](server/docs/openapi.yaml)
+
+The specification can be viewed locally using tools such as Swagger UI or Redoc.
 
 ---
 
@@ -145,13 +144,14 @@ simple-poll-app/
 │ ├── src/
 │ │ ├── routes/
 │ │ ├── auth/
-│ │ ├── storage/
-│ │ └── docs/
+│ │ └── storage/
+│ ├── docs/
+│ │ └── openapi.yaml
 │ ├── data/
 │ └── bruno/
 ├── TERMS.md
 ├── PRIVACY.md
-├── README.md
+└── README.md
 
 
 ---
@@ -162,34 +162,27 @@ simple-poll-app/
 ```bash
 cd server
 node src/index.js
-
 Client
-
-Open in browser:
+Open in a browser:
 
 http://localhost:3000/index.html
 
 Legal Documents
-
 Terms of Service: http://localhost:3000/TERMS.md
 
 Privacy Policy: http://localhost:3000/PRIVACY.md
 
 Reflection
-
 This project was developed as part of an assignment focused on user handling, privacy, and API architecture.
 
 Key takeaways:
 
-Explicit consent handling influences both API and client design
+Explicit consent handling directly influences API and client design
 
-Separating personal data from public contributions is critical
+Separating personal data from public contributions simplifies deletion flows
 
-Designing deletion flows early prevents architectural issues later
+Designing account deletion early prevents architectural issues later
 
 Even simple authentication schemes require careful reasoning
 
-The project provides a solid foundation for future expansion while remaining intentionally minimal and understandable.
-
-
-
+The project provides a clean and understandable foundation for future expansion while remaining intentionally minimal.

@@ -1,168 +1,3 @@
-openapi: 3.0.3
-info:
-  title: Simple Poll API
-  version: 1.0.0
-  description: RESTful-ish API for creating polls and voting. Scaffold only (no persistence).
-
-servers:
-  - url: http://localhost:3000/api/v1
-    description: Local development
-
-tags:
-  - name: Polls
-    description: Poll management endpoints
-
-paths:
-  /polls:
-    get:
-      tags: [Polls]
-      summary: List polls
-      operationId: listPolls
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  polls:
-                    type: array
-                    items:
-                      $ref: "#/components/schemas/Poll"
-              examples:
-                empty:
-                  value:
-                    polls: []
-    post:
-      tags: [Polls]
-      summary: Create a poll
-      operationId: createPoll
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/CreatePollRequest"
-            examples:
-              sample:
-                value:
-                  question: "Hva skal vi spise?"
-                  options:
-                    - text: "Pizza"
-                    - text: "Sushi"
-      responses:
-        "201":
-          description: Created
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  poll:
-                    $ref: "#/components/schemas/Poll"
-              examples:
-                created:
-                  value:
-                    poll:
-                      id: "poll_123"
-        "400":
-          description: Bad request
-
-  /polls/{pollId}:
-    get:
-      tags: [Polls]
-      summary: Get poll by id
-      operationId: getPollById
-      parameters:
-        - in: path
-          name: pollId
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Poll"
-              examples:
-                sample:
-                  value:
-                    id: "poll_123"
-                    question: "Hva skal vi spise?"
-                    options:
-                      - id: "opt_1"
-                        text: "Pizza"
-                      - id: "opt_2"
-                        text: "Sushi"
-        "404":
-          description: Not found
-
-  /polls/{pollId}/votes:
-    post:
-      tags: [Polls]
-      summary: Vote on a poll
-      operationId: voteOnPoll
-      parameters:
-        - in: path
-          name: pollId
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/VoteRequest"
-            examples:
-              sample:
-                value:
-                  optionId: "opt_1"
-      responses:
-        "201":
-          description: Created
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/VoteResponse"
-              examples:
-                created:
-                  value:
-                    vote:
-                      pollId: "poll_123"
-                      optionId: "opt_1"
-        "400":
-          description: Bad request
-        "404":
-          description: Not found
-
-  /polls/{pollId}/results:
-    get:
-      tags: [Polls]
-      summary: Get poll results
-      operationId: getPollResults
-      parameters:
-        - in: path
-          name: pollId
-          required: true
-          schema:
-            type: string
-      responses:
-        "200":
-          description: OK
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/PollResults"
-              examples:
-                empty:
-                  value:
-                    pollId: "poll_123"
-                    results: []
-
 components:
   schemas:
     Poll:
@@ -178,7 +13,10 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/PollOption"
-      required: [id]
+      required:
+        - id
+        - question
+        - options
 
     PollOption:
       type: object
@@ -189,12 +27,16 @@ components:
         text:
           type: string
           example: Pizza
+      required:
+        - id
+        - text
 
     CreatePollRequest:
       type: object
       properties:
         question:
           type: string
+          example: "Hva skal vi spise?"
         options:
           type: array
           items:
@@ -202,15 +44,21 @@ components:
             properties:
               text:
                 type: string
-            required: [text]
-      required: [question, options]
+                example: Pizza
+            required:
+              - text
+      required:
+        - question
+        - options
 
     VoteRequest:
       type: object
       properties:
         optionId:
           type: string
-      required: [optionId]
+          example: opt_1
+      required:
+        - optionId
 
     VoteResponse:
       type: object
@@ -220,15 +68,40 @@ components:
           properties:
             pollId:
               type: string
+              example: poll_123
             optionId:
               type: string
+              example: opt_1
+          required:
+            - pollId
+            - optionId
+
+    PollResultItem:
+      type: object
+      properties:
+        optionId:
+          type: string
+          example: opt_1
+        text:
+          type: string
+          example: Pizza
+        votes:
+          type: integer
+          example: 3
+      required:
+        - optionId
+        - votes
 
     PollResults:
       type: object
       properties:
         pollId:
           type: string
+          example: poll_123
         results:
           type: array
           items:
-            type: object
+            $ref: "#/components/schemas/PollResultItem"
+      required:
+        - pollId
+        - results
