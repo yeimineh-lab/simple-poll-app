@@ -3,30 +3,41 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Users</title>
+    <title>Simple Poll – Users</title>
     <link rel="stylesheet" href="./app.css" />
+    <script type="module" src="./app.mjs"></script>
   </head>
+
   <body>
-    <main class="container">
-      <header class="header">
-        <h1>Users</h1>
-        <p class="muted">
-          Relative API paths (f.eks. <code>/api/v1/users</code>). Token lagres kun i minnet.
-        </p>
+    <div class="container">
+      <header>
+        <div>
+          <h1>Users</h1>
+          <p class="subtitle">
+            Relative API paths (f.eks. <code>/api/v1/users</code>). Token lagres kun i minnet.
+          </p>
+        </div>
+        <span class="badge"><span class="dot"></span> local:3000</span>
       </header>
 
-      <section class="grid">
-        <user-create></user-create>
-        <user-edit></user-edit>
-        <user-delete></user-delete>
-      </section>
+      <main class="grid">
+        <section class="card col-4">
+          <user-create></user-create>
+        </section>
 
-      <section class="panel">
-        <h2>Status</h2>
-        <pre id="log">Ready.</pre>
-      </section>
-    </main>
+        <section class="card col-4">
+          <user-edit></user-edit>
+        </section>
 
-    <script type="module" src="./app.mjs"></script>
+        <section class="card col-4">
+          <user-delete></user-delete>
+        </section>
+
+        <section class="card col-12">
+          <h2>Status</h2>
+          <div id="status" class="status"></div>
+        </section>
+      </main>
+    </div>
   </body>
 </html>
