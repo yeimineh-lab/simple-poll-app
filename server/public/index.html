@@ -1,0 +1,32 @@
+﻿<!doctype html>
+<html lang="no">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Users</title>
+    <link rel="stylesheet" href="./app.css" />
+  </head>
+  <body>
+    <main class="container">
+      <header class="header">
+        <h1>Users</h1>
+        <p class="muted">
+          Relative API paths (f.eks. <code>/api/v1/users</code>). Token lagres kun i minnet.
+        </p>
+      </header>
+
+      <section class="grid">
+        <user-create></user-create>
+        <user-edit></user-edit>
+        <user-delete></user-delete>
+      </section>
+
+      <section class="panel">
+        <h2>Status</h2>
+        <pre id="log">Ready.</pre>
+      </section>
+    </main>
+
+    <script type="module" src="./app.mjs"></script>
+  </body>
+</html>

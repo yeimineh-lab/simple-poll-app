@@ -4,15 +4,16 @@ const usersRoutes = require("./routes/users.routes.js");
 const authRoutes = require("./routes/auth.routes.js");
 const path = require("path");
 
-
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json());   
-app.use(express.static(path.join(__dirname, "../../client"))); 
+app.use(express.json());
 
+// Serve client from server/public
+app.use(express.static(path.join(__dirname, "../public")));
 
-app.get("/", (req, res) => res.send("Simple Poll API is running"));
+// health endpoint (optional)
+app.get("/health", (req, res) => res.send("OK"));
 
 app.use("/api/v1", pollsRoutes);
 app.use("/api/v1", usersRoutes);
