@@ -1,97 +1,114 @@
-﻿# Simple Poll App – User Client
+﻿# Simple Poll App
 
-This project is a simple full-stack application with a Node.js backend and a structured client built using Web Components.
+Simple Poll App is a full-stack web application built with Node.js and Express on the backend and a modular ES Module-based client using Custom Web Components.
 
-The goal of this assignment was to build a client in a structured way that interacts with an existing User API.
+The application demonstrates clean architecture, separation of concerns, and structured project organization.
 
 ---
 
-## Project Structure
+## What the Application Does
 
-```text
+The application provides:
+
+- User registration
+- User authentication (login & logout)
+- Edit user profile
+- Delete user account
+- Token-based authentication
+- Centralized API communication
+- Structured client-side state management
+
+The client communicates with the API using relative URLs only.
+
+---
+
+## How to Run the Application
+
+### 1. Navigate to the server directory
+
+```bash
+cd server
+2. Install dependencies
+npm install
+3. Start the development server
+npm run dev
+4. Open in browser
+http://localhost:3000
+The Express server serves both the API and the client from the same origin.
+
+Project Structure
 simple-poll-app/
-│
-├── server/
-│   ├── src/
-│   │   ├── routes/
-│   │   ├── middleware/
-│   │   ├── config/
-│   │   ├── storage/
-│   │   ├── app.js
-│   │   └── index.js
-│   │
-│   ├── public/
-│   │   ├── index.html
-│   │   ├── app.mjs
-│   │   ├── app.css
-│   │   ├── data/
-│   │   │   ├── api.mjs
-│   │   │   └── userStore.mjs
-│   │   └── ui/
-│   │       ├── user-create.mjs
-│   │       ├── user-edit.mjs
-│   │       └── user-delete.mjs
-│   │
-│   └── data/
-│       ├── users.json
-│       └── polls.json
-│
-└── README.md
+└─ server/
+   ├─ src/
+   │  ├─ app.js              # Express configuration
+   │  ├─ index.js            # Server entry point
+   │  │
+   │  ├─ routes/             # API route modules
+   │  ├─ middleware/         # Custom middleware
+   │  ├─ auth/               # Authentication logic
+   │  └─ storage/            # JSON storage layer
+   │
+   ├─ public/                # Client application
+   │  ├─ index.html
+   │  ├─ app.css
+   │  ├─ app.mjs
+   │  │
+   │  ├─ data/
+   │  │  ├─ api.mjs          # Single fetch gateway
+   │  │  └─ userStore.mjs    # Centralized state logic
+   │  │
+   │  └─ ui/
+   │     ├─ user-create.mjs
+   │     ├─ user-edit.mjs
+   │     └─ user-delete.mjs
+   │
+   └─ data/
+      ├─ users.json
+      └─ polls.json
+Client Architecture
+The client is structured into three layers:
 
-Architecture
+1. UI Layer
+Located in public/ui/
 
-The client is structured with separation of concerns.
+Uses Custom Web Components
 
-UI Layer
+Each component has a single responsibility
 
-Custom Web Components:
+No direct API calls inside UI components
 
-user-create
+2. Logic Layer
+Located in public/data/userStore.mjs
 
-user-edit
+Centralized state management
 
-user-delete
+Implements the Observer pattern using EventTarget
 
-Each component only handles DOM and user interaction.
+UI reacts automatically to state changes
 
-Data Layer
+3. Data Layer
+Located in public/data/api.mjs
 
-api.mjs contains the only fetch() call used in the client.
+Contains the only fetch() call in the client
 
-All API requests go through: request(path, options)
-
-This ensures:
-
-Only relative URLs are used
-
-Only one fetch gateway exists
+Uses relative URLs only
 
 Centralized error handling
 
-Logic Layer
+This structure ensures clean separation between UI, logic, and data handling.
 
-userStore.mjs works as a small state manager using the observer pattern (EventTarget).
+Backend Architecture
+The backend follows a modular Express structure:
 
-The UI listens to "change" events and re-renders automatically.
+Routes are separated by domain (users, auth, polls)
 
-This avoids duplication of data structures and keeps the state in one place.
+Middleware is isolated
 
-Requirements Checklist
+JSON file storage is abstracted into a storage layer
 
-✔ Only relative URLs used
-✔ Only one fetch() in the client
-✔ No duplicated data object structures
-✔ Separation of UI, Logic, and Data
-✔ Custom Web Components for creating, editing and deleting users
-✔ Client communicates with API successfully
+Error handling and 404 handling are centralized
 
-How to Run
-cd server
-npm install
-npm run dev
+The server serves both the API and the client from the same Express instance.
 
-
-Server runs at:
-
-http://localhost:3000
-
+Repository
+https://github.com/yeimineh-lab/simple-poll-app
