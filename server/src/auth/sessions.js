@@ -1,18 +1,16 @@
-// server/src/auth/sessions.js
-// In-memory sessions (no file I/O). Stable for assignments.
+const sessions = new Map();
 
-const sessions = new Map(); // token -> { userId, createdAt }
-
-function createSession(token, userId) {
-  sessions.set(token, { userId, createdAt: Date.now() });
+/**
+ * token -> userId
+ */
+export function createSession(token, userId) {
+  sessions.set(token, userId);
 }
 
-function getSession(token) {
-  return sessions.get(token) || null;
-}
-
-function deleteSession(token) {
+export function deleteSession(token) {
   sessions.delete(token);
 }
 
-module.exports = { createSession, getSession, deleteSession };
+export function getSessionUserId(token) {
+  return sessions.get(token) || null;
+}

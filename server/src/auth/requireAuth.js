@@ -1,25 +1,20 @@
-// server/src/auth/requireAuth.js
-const { getSession } = require("./sessions");
+import { getSessionUserId } from "./sessions.js";
 
-function requireAuth() {
+export function requireAuth() {
   return (req, res, next) => {
     const header = req.headers.authorization || "";
-    const match = header.match(/^Bearer\s+(.+)$/i);
+    const [type, token] = header.split(" ");
 
-    if (!match) {
-      return res.status(401).json({ error: "Missing auth token" });
+    if (type !== "Bearer" || !token) {
+      return res.status(401).json({ error: "Missing or invalid Authorization header" });
     }
 
-    const token = match[1].trim();
-    const session = getSession(token);
-
-    if (!session) {
-      return res.status(401).json({ error: "Invalid auth token" });
+    const userId = getSessionUserId(token);
+    if (!userId) {
+      return res.status(401).json({ error: "Invalid session" });
     }
 
-    req.auth = { userId: session.userId, token };
+    req.auth = { token, userId };
     next();
   };
 }
-
-module.exports = { requireAuth };

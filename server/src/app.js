@@ -1,13 +1,13 @@
-﻿const express = require("express");
+﻿import express from "express";
 
-const pollsRoutes = require("./routes/polls.routes.js");
-const usersRoutes = require("./routes/users.routes.js");
-const authRoutes = require("./routes/auth.routes.js");
+import pollsRoutes from "./routes/polls.routes.js";
+import usersRoutes from "./routes/users.routes.js";
+import authRoutes from "./routes/auth.routes.js";
 
-const notFound = require("./middleware/notFound.js");
-const errorHandler = require("./middleware/errorHandler.js");
+import notFound from "./middleware/notFound.js";
+import errorHandler from "./middleware/errorHandler.js";
 
-const { PUBLIC_DIR } = require("./config/paths.js");
+import { PUBLIC_DIR } from "./config/paths.js";
 
 const app = express();
 
@@ -23,4 +23,4 @@ app.use("/api/v1", authRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-module.exports = app;
+export default app;

@@ -1,13 +1,5 @@
-﻿module.exports = (err, req, res, next) => {
-  const status = Number(err.status || err.statusCode || 500);
-
-  const payload = {
-    error: err.message || "Internal Server Error",
-  };
-
-  if (process.env.NODE_ENV !== "production") {
-    payload.stack = err.stack;
-  }
-
-  res.status(status).json(payload);
-};
+﻿export default function errorHandler(err, req, res, next) {
+  const status = err.status || 500;
+  const message = err.message || "Internal server error";
+  res.status(status).json({ error: message });
+}

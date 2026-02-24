@@ -1,50 +1,26 @@
-const fs = require("fs");
-const fsp = require("fs/promises");
-const path = require("path");
+import fs from "node:fs/promises";
+import path from "node:path";
 
-function ensureDirForFile(filePath) {
-  const dir = path.dirname(filePath);
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-}
-
-async function readJsonSafe(filePath, defaultValue) {
-  try {
-    const raw = await fsp.readFile(filePath, "utf8");
-    if (!raw.trim()) return defaultValue; // tom fil -> default
-    return JSON.parse(raw);
-  } catch (err) {
-    if (err.code === "ENOENT") return defaultValue; // finnes ikke -> default
-    // Hvis JSON er korrupt/halvskrevet, kast med tydelig melding
-    if (err instanceof SyntaxError) {
-      throw new Error(`Invalid JSON in ${filePath}. File may be partially written.`);
+export function createJsonStore(filePath, defaultValue) {
+  async function ensureFile() {
+    try {
+      await fs.access(filePath);
+    } catch {
+      await fs.mkdir(path.dirname(filePath), { recursive: true });
+      await fs.writeFile(filePath, JSON.stringify(defaultValue, null, 2), "utf8");
     }
-    throw err;
   }
-}
-
-async function atomicWriteJson(filePath, value) {
-  ensureDirForFile(filePath);
-  const tmpPath = `${filePath}.${process.pid}.tmp`;
-
-  const data = JSON.stringify(value, null, 2);
-  await fsp.writeFile(tmpPath, data, "utf8");
-  await fsp.rename(tmpPath, filePath); // atomic on same volume
-}
-
-function createJsonStore(filePath, defaultValue) {
-  const resolved = path.resolve(filePath);
 
   return {
-    path: resolved,
-
     async read() {
-      return readJsonSafe(resolved, defaultValue);
+      await ensureFile();
+      const raw = await fs.readFile(filePath, "utf8");
+      return JSON.parse(raw);
     },
 
     async write(value) {
-      await atomicWriteJson(resolved, value);
+      await ensureFile();
+      await fs.writeFile(filePath, JSON.stringify(value, null, 2), "utf8");
     },
   };
 }
-
-module.exports = { createJsonStore };

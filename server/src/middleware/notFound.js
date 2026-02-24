@@ -1,6 +1,3 @@
-﻿module.exports = (req, res) => {
-  res.status(404).json({
-    error: "Not Found",
-    path: req.originalUrl,
-  });
-};
+﻿export default function notFound(req, res) {
+  res.status(404).json({ error: "Not found" });
+}
