@@ -39,7 +39,7 @@ class UserDelete extends HTMLElement {
     `;
 
     this.shadowRoot.querySelector("#del").onclick = async () => {
-      if (!confirm("Er du sikker pÃ¥ at du vil slette kontoen?")) return;
+      if (!confirm("Are you sure you want to delete your account?")) return;
       await userStore.deleteMe();
     };
   }

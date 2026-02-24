@@ -5,6 +5,7 @@ import { fileURLToPath } from "node:url";
 
 import { createJsonStore } from "../storage/jsonStore.mjs";
 import { createSession, deleteSession } from "../auth/sessions.mjs";
+import { AuthError, NotFoundError } from "../domain/errors.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -23,17 +24,15 @@ export async function login({ username, password }) {
 
   const users = await usersStore.read();
   const user = users.find((x) => x.username === u);
+
+  // Do not reveal whether user exists
   if (!user) {
-    const err = new Error("Invalid credentials");
-    err.status = 401;
-    throw err;
+    throw new AuthError("Invalid credentials");
   }
 
   const ok = await bcrypt.compare(p, user.passwordHash);
   if (!ok) {
-    const err = new Error("Invalid credentials");
-    err.status = 401;
-    throw err;
+    throw new AuthError("Invalid credentials");
   }
 
   const token = crypto.randomBytes(32).toString("hex");
@@ -45,11 +44,11 @@ export async function login({ username, password }) {
 export async function me({ userId }) {
   const users = await usersStore.read();
   const user = users.find((x) => x.id === userId);
+
   if (!user) {
-    const err = new Error("User not found");
-    err.status = 404;
-    throw err;
+    throw new NotFoundError("User not found");
   }
+
   return {
     id: user.id,
     username: user.username,

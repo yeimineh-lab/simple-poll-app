@@ -1,107 +1,358 @@
+openapi: 3.0.3
+info:
+  title: Simple Poll API
+  version: 1.0.0
+  description: API for user registration, authentication and polls.
+
+servers:
+  - url: http://localhost:3000
+    description: Local dev
+
+tags:
+  - name: Health
+  - name: Auth
+  - name: Users
+  - name: Polls
+
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: Bearer
+
   schemas:
-    Poll:
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
+
+    Consent:
+      type: object
+      properties:
+        tosAcceptedAt:
+          type: string
+          format: date-time
+        tosVersion:
+          type: string
+        privacyAcceptedAt:
+          type: string
+          format: date-time
+        privacyVersion:
+          type: string
+      required:
+        - tosAcceptedAt
+        - tosVersion
+        - privacyAcceptedAt
+        - privacyVersion
+
+    UserPublic:
       type: object
       properties:
         id:
           type: string
-          example: poll_123
-        question:
+          example: "256375c5-7f8c-4661-a83e-a5838b363196"
+        username:
           type: string
-          example: "Hva skal vi spise?"
-        options:
-          type: array
-          items:
-            $ref: "#/components/schemas/PollOption"
-      required:
-        - id
-        - question
-        - options
+          example: "test1"
+        createdAt:
+          type: string
+          format: date-time
+        consent:
+          $ref: "#/components/schemas/Consent"
+      required: [id, username, createdAt, consent]
+
+    CreateUserRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "test1"
+        password:
+          type: string
+          example: "supersecret123"
+        tosAccepted:
+          type: boolean
+          example: true
+      required: [username, password, tosAccepted]
+
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          example: "test1"
+        password:
+          type: string
+          example: "supersecret123"
+      required: [username, password]
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+          example: "1f2a...token..."
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+            username:
+              type: string
+          required: [id, username]
+      required: [token, user]
+
+    OkResponse:
+      type: object
+      properties:
+        ok:
+          type: boolean
+          example: true
+      required: [ok]
 
     PollOption:
       type: object
       properties:
         id:
           type: string
-          example: opt_1
+          example: "opt_1"
         text:
           type: string
-          example: Pizza
-      required:
-        - id
-        - text
+          example: "Pizza"
+        votes:
+          type: integer
+          example: 0
+      required: [id, text, votes]
 
-    CreatePollRequest:
+    Poll:
       type: object
       properties:
-        question:
+        id:
+          type: string
+          example: "poll_123"
+        title:
           type: string
           example: "Hva skal vi spise?"
         options:
           type: array
           items:
-            type: object
-            properties:
-              text:
-                type: string
-                example: Pizza
-            required:
-              - text
-      required:
-        - question
-        - options
+            $ref: "#/components/schemas/PollOption"
+        createdAt:
+          type: string
+          format: date-time
+        ownerId:
+          type: string
+          nullable: true
+        ownerUsername:
+          type: string
+          example: "test1"
+      required: [id, title, options, createdAt, ownerId, ownerUsername]
 
-    VoteRequest:
+    CreatePollRequest:
       type: object
       properties:
-        optionId:
+        title:
           type: string
-          example: opt_1
-      required:
-        - optionId
+          example: "Hva skal vi spise?"
+        options:
+          type: array
+          description: Array of option strings or objects with { text } (client typically sends objects).
+          items:
+            oneOf:
+              - type: string
+                example: "Pizza"
+              - type: object
+                properties:
+                  text:
+                    type: string
+                    example: "Pizza"
+                required: [text]
+      required: [title, options]
 
-    VoteResponse:
+    ListPollsResponse:
       type: object
       properties:
-        vote:
-          type: object
-          properties:
-            pollId:
-              type: string
-              example: poll_123
-            optionId:
-              type: string
-              example: opt_1
-          required:
-            - pollId
-            - optionId
-
-    PollResultItem:
-      type: object
-      properties:
-        optionId:
-          type: string
-          example: opt_1
-        text:
-          type: string
-          example: Pizza
-        votes:
-          type: integer
-          example: 3
-      required:
-        - optionId
-        - votes
-
-    PollResults:
-      type: object
-      properties:
-        pollId:
-          type: string
-          example: poll_123
-        results:
+        polls:
           type: array
           items:
-            $ref: "#/components/schemas/PollResultItem"
-      required:
-        - pollId
-        - results
+            $ref: "#/components/schemas/Poll"
+      required: [polls]
+
+    CreatePollResponse:
+      type: object
+      properties:
+        poll:
+          $ref: "#/components/schemas/Poll"
+      required: [poll]
+
+paths:
+  /health:
+    get:
+      tags: [Health]
+      summary: Health check
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+
+  /api/v1/auth/login:
+    post:
+      tags: [Auth]
+      summary: Login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: Logged in
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/auth/me:
+    get:
+      tags: [Auth]
+      summary: Get current user profile
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserPublic"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/auth/logout:
+    post:
+      tags: [Auth]
+      summary: Logout (invalidate current session token)
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Logged out
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/users:
+    post:
+      tags: [Users]
+      summary: Create user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserRequest"
+      responses:
+        "201":
+          description: User created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserPublic"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "409":
+          description: Username already exists
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/users/me:
+    delete:
+      tags: [Users]
+      summary: Delete my user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /api/v1/polls:
+    get:
+      tags: [Polls]
+      summary: List polls
+      responses:
+        "200":
+          description: Poll list
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ListPollsResponse"
+    post:
+      tags: [Polls]
+      summary: Create poll
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreatePollRequest"
+      responses:
+        "201":
+          description: Poll created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CreatePollResponse"
+        "400":
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"

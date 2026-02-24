@@ -1,114 +1,84 @@
-﻿# Simple Poll App
+﻿Simple Poll App
 
-Simple Poll App is a full-stack web application built with Node.js and Express on the backend and a modular ES Module-based client using Custom Web Components.
+A simple REST-based poll application built with Node.js and Express using ESM modules.
 
-The application demonstrates clean architecture, separation of concerns, and structured project organization.
+Users can:
 
----
+Create an account
 
-## What the Application Does
+Log in and log out
 
-The application provides:
+Create polls
 
-- User registration
-- User authentication (login & logout)
-- Edit user profile
-- Delete user account
-- Token-based authentication
-- Centralized API communication
-- Structured client-side state management
+List polls
 
-The client communicates with the API using relative URLs only.
+Delete their own account
 
----
+Tech Stack
 
-## How to Run the Application
+Node.js (ESM only)
 
-### 1. Navigate to the server directory
+Express
 
-```bash
-cd server
-2. Install dependencies
-npm install
-3. Start the development server
-npm run dev
-4. Open in browser
-http://localhost:3000
-The Express server serves both the API and the client from the same origin.
+JSON file storage (via custom jsonStore)
+
+REST-style API
+
+OpenAPI specification
 
 Project Structure
-simple-poll-app/
-└─ server/
-   ├─ src/
-   │  ├─ app.js              # Express configuration
-   │  ├─ index.js            # Server entry point
-   │  │
-   │  ├─ routes/             # API route modules
-   │  ├─ middleware/         # Custom middleware
-   │  ├─ auth/               # Authentication logic
-   │  └─ storage/            # JSON storage layer
-   │
-   ├─ public/                # Client application
-   │  ├─ index.html
-   │  ├─ app.css
-   │  ├─ app.mjs
-   │  │
-   │  ├─ data/
-   │  │  ├─ api.mjs          # Single fetch gateway
-   │  │  └─ userStore.mjs    # Centralized state logic
-   │  │
-   │  └─ ui/
-   │     ├─ user-create.mjs
-   │     ├─ user-edit.mjs
-   │     └─ user-delete.mjs
-   │
-   └─ data/
-      ├─ users.json
-      └─ polls.json
-Client Architecture
-The client is structured into three layers:
+server/
+├─ src/
+│  ├─ app.mjs              # Express configuration
+│  ├─ server.mjs           # Server entry point
+│  ├─ routes/              # Route handlers (no business logic)
+│  ├─ services/            # Business logic
+│  ├─ storage/             # JSON storage layer
+│  ├─ auth/                # Session handling
+│  ├─ middleware/          # errorHandler, notFound, requireJson
+│  ├─ domain/              # AppError subclasses
+│  └─ config/              # Path configuration
+├─ data/                   # JSON data files
+├─ public/                 # Frontend files
+└─ docs/
+   └─ openapi.yaml         # API specification
 
-1. UI Layer
-Located in public/ui/
+How to Run Locally
+cd server
+npm install
+npm start
 
-Uses Custom Web Components
+Server runs at:
 
-Each component has a single responsibility
+http://localhost:3000
 
-No direct API calls inside UI components
+Health check:
 
-2. Logic Layer
-Located in public/data/userStore.mjs
+http://localhost:3000/health
 
-Centralized state management
+API base:
 
-Implements the Observer pattern using EventTarget
+http://localhost:3000/api/v1
+API Documentation
 
-UI reacts automatically to state changes
+The API is documented using OpenAPI 3.
 
-3. Data Layer
-Located in public/data/api.mjs
+OpenAPI file:
 
-Contains the only fetch() call in the client
+server/docs/openapi.yaml
 
-Uses relative URLs only
+Architecture
 
-Centralized error handling
+ESM-only backend (no CommonJS)
 
-This structure ensures clean separation between UI, logic, and data handling.
+Clear separation of concerns:
 
-Backend Architecture
-The backend follows a modular Express structure:
+Routes: HTTP layer only
 
-Routes are separated by domain (users, auth, polls)
+Services: business logic
 
-Middleware is isolated
+Storage: persistence layer
 
-JSON file storage is abstracted into a storage layer
+Centralized error handling using custom AppError subclasses
 
-Error handling and 404 handling are centralized
-
-The server serves both the API and the client from the same Express instance.
-
-Repository
-https://github.com/yeimineh-lab/simple-poll-app
+JSON-based persistence via custom storage abstraction
