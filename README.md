@@ -1,10 +1,10 @@
 ﻿# PollApp
 
-A simple REST-based poll application built with **Node.js** and **Express** using **ESM modules**.
+A simple REST-based poll application built with **Node.js** and **Express**, using **ESM modules only**.
 
 ---
 
-## ✨ Features
+##  Features
 
 Users can:
 
@@ -16,9 +16,9 @@ Users can:
 
 ---
 
-## 🛠 Tech Stack
+##  Tech Stack
 
-- Node.js (ESM only)
+- Node.js (ESM only, no CommonJS)
 - Express
 - JSON file storage (custom `jsonStore`)
 - REST-style API
@@ -26,7 +26,7 @@ Users can:
 
 ---
 
-## 📁 Project Structure
+##  Project Structure
 
 ```text
 server/
@@ -34,7 +34,7 @@ server/
 │   ├── app.mjs              # Express configuration
 │   ├── server.mjs           # Server entry point
 │   ├── routes/              # Route handlers (no business logic)
-│   ├── services/            # Business logic
+│   ├── services/            # Business logic layer
 │   ├── storage/             # JSON storage layer
 │   ├── auth/                # Session handling
 │   ├── middleware/          # errorHandler, notFound, requireAuth
@@ -43,45 +43,58 @@ server/
 │
 ├── data/                    # JSON data files
 ├── public/                  # Frontend files
-├── docs/                    # Documentation
-│   └── openapi.yaml
+├── docs/
+│   └── openapi.yaml         # OpenAPI 3 documentation
 
----
+How to Run Locally
 
-## 🚀 How to Run Locally
+Clone the repository and run:
 
-```bash
 cd server
 npm install
 npm start
 
-Server runs at:
+The server runs at:
 
 http://localhost:3000
-🩺 Health Check
-http://localhost:3000/health
-🔗 API Base
+
+Health Check
+GET http://localhost:3000/health
+
+API Base URL
 http://localhost:3000/api/v1
+
+API Documentation
 
 The API is documented using OpenAPI 3.
 
 OpenAPI file:
 
 server/docs/openapi.yaml
-🏗 Architecture
 
-ESM-only backend (no CommonJS)
+Architecture
 
-Clear separation of concerns
+This project follows a clear separation of concerns:
 
-Layers
+ESM-only Backend
 
-Routes → HTTP layer only
+Uses ES modules (import / export)
 
-Services → Business logic
+No CommonJS (require)
 
-Storage → JSON persistence
+Layered Structure
 
-Middleware → Error & auth handling
+Routes
+→ HTTP layer only (no domain/business logic)
 
-Domain → Custom error classes
+Services
+→ Business logic and validation
+
+Storage
+→ JSON-based persistence layer
+
+Middleware
+→ Authentication and centralized error handling
+
+Domain
+→ Custom error classes (e.g., AppError subclasses)
