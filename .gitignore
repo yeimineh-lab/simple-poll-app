@@ -1,6 +1,4 @@
-﻿node_modules/
 server/node_modules/
-client/node_modules/
 
 .env
 .env.*
@@ -9,4 +7,5 @@ client/node_modules/
 dist/
 build/
 coverage/
+
 .DS_Store
