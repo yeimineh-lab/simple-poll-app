@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { createJsonStore } from "../storage/jsonStore.mjs";
-import { ValidationError, NotFoundError } from "../domain/errors.mjs";
+import { ValidationError, NotFoundError } from "../middleware/errors.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

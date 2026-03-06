@@ -4,8 +4,8 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { createJsonStore } from "../storage/jsonStore.mjs";
-import { deleteSession } from "../auth/sessions.mjs";
-import { ValidationError, ConflictError, NotFoundError } from "../domain/errors.mjs";
+import { deleteSession } from "../services/sessions.service.mjs";
+import { ValidationError, ConflictError, NotFoundError } from "../middleware/errors.mjs";
 
 import {
   getUserByUsername,

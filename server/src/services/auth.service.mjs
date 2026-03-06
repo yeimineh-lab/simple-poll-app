@@ -1,8 +1,8 @@
 import bcrypt from "bcryptjs";
 import crypto from "node:crypto";
 
-import { createSession, deleteSession } from "../auth/sessions.mjs";
-import { AuthError, NotFoundError } from "../domain/errors.mjs";
+import { createSession, deleteSession } from "../services/sessions.service.mjs";
+import { AuthError, NotFoundError } from "../middleware/errors.mjs";
 
 import { getUserByUsername, getUserById } from "../storage/users.pgStore.mjs";
 
