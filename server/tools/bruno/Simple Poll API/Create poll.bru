@@ -12,17 +12,14 @@ post {
 
 headers {
   Content-Type: application/json
+  Authorization: Bearer e1561fe6906b65712fb37deaafb45757ccb4d52207b9de802b1e76238253cc0c
 }
 
 body:json {
   {
-    "question": "Hva skal vi spise?",
-    "options": [
-      { "text": "Pizza" },
-      { "text": "Sushi" }
-    ]
+    "title": "Hva skal vi spise?",
+    "options": ["Pizza", "Sushi"]
   }
-  
 }
 
 settings {

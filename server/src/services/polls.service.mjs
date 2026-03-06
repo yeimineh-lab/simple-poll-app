@@ -1,18 +1,7 @@
-import crypto from "node:crypto";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-
-import { createJsonStore } from "../storage/jsonStore.mjs";
+import { getUserById } from "../storage/users.pgStore.mjs";
+import { insertPoll, listPollRows, getPollById } from "../storage/polls.pgStore.mjs";
 import { ValidationError, NotFoundError } from "../middleware/errors.mjs";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-const pollsFile = path.join(__dirname, "..", "..", "data", "polls.json");
-const usersFile = path.join(__dirname, "..", "..", "data", "users.json");
-
-const pollsStore = createJsonStore(pollsFile, []);
-const usersStore = createJsonStore(usersFile, []);
+import { pool } from "../storage/db.mjs";
 
 function normalizeTitle(t) {
   return String(t ?? "").trim();
@@ -28,7 +17,7 @@ function normalizeOptions(options) {
 }
 
 export async function listPolls() {
-  const polls = await pollsStore.read();
+  const polls = await listPollRows();
   return { polls };
 }
 
@@ -44,29 +33,56 @@ export async function createPoll({ body, userId }) {
     throw new ValidationError("Poll must have at least 2 valid options.");
   }
 
-  const [polls, users] = await Promise.all([pollsStore.read(), usersStore.read()]);
-  const owner = users.find((u) => u.id === userId);
+  const owner = await getUserById(userId);
 
   if (!owner) {
-    // This usually means token references a deleted user
     throw new NotFoundError("User not found");
   }
 
-  const poll = {
-    id: crypto.randomUUID(),
-    title,
-    options: normalizedOptions.map((text) => ({
-      id: crypto.randomUUID(),
-      text,
-      votes: 0,
-    })),
-    createdAt: new Date().toISOString(),
+  const poll = await insertPoll({
     ownerId: userId,
-    ownerUsername: owner.username,
-  };
-
-  polls.push(poll);
-  await pollsStore.write(polls);
+    title,
+    description: normalizedOptions.join(" | "),
+  });
 
   return { poll };
+}
+
+export async function getPollResults(pollId) {
+  const poll = await getPollById(pollId);
+
+  if (!poll) {
+    throw new NotFoundError("Poll not found");
+  }
+
+  const description = poll.description ?? "";
+  const options = description
+    .split("|")
+    .map((s) => s.trim())
+    .filter(Boolean);
+
+  const voteResult = await pool.query(
+    `SELECT option_index, COUNT(*)::int AS votes
+     FROM votes
+     WHERE poll_id = $1
+     GROUP BY option_index
+     ORDER BY option_index`,
+    [pollId],
+  );
+
+  const counts = new Map(
+    voteResult.rows.map((row) => [Number(row.option_index), Number(row.votes)]),
+  );
+
+  return {
+    poll: {
+      id: poll.id,
+      title: poll.title,
+      options: options.map((text, index) => ({
+        optionIndex: index,
+        text,
+        votes: counts.get(index) ?? 0,
+      })),
+    },
+  };
 }

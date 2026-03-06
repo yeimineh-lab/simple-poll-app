@@ -6,7 +6,7 @@ import { getVoteByPollAndUser, createVote, updateVote } from "../storage/votes.p
 import { getPollById } from "../storage/polls.pgStore.mjs";
 
 export async function voteOnPoll({ pollId, userId, optionIndex }) {
-  if (!Number.isInteger(pollId) || pollId <= 0) {
+  if (typeof pollId !== "string" || pollId.length === 0) {
     throw new ValidationError("Invalid poll id");
   }
 

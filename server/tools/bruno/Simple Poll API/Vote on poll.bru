@@ -5,20 +5,20 @@ meta {
 }
 
 post {
-  url: {{baseUrl}}/polls/poll_123/votes
+  url: {{baseUrl}}/polls/1/vote
   body: json
   auth: inherit
 }
 
 headers {
   Content-Type: application/json
+  Authorization: Bearer 8f2974b94db901fec4da25141d65afa763b210d9519514cf172e16cc81332622
 }
 
 body:json {
   {
-    "optionId": "option_1"
+    "optionIndex": 0
   }
-  
 }
 
 settings {

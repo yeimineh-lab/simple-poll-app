@@ -14,6 +14,16 @@ router.get("/polls", async (req, res, next) => {
   }
 });
 
+// GET /api/v1/polls/:id/results
+router.get("/polls/:id/results", async (req, res, next) => {
+  try {
+    const result = await pollsService.getPollResults(req.params.id);
+    res.json(result);
+  } catch (err) {
+    next(err);
+  }
+});
+
 // POST /api/v1/polls
 router.post("/polls", requireAuth(), async (req, res, next) => {
   try {

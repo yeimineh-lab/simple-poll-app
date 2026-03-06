@@ -1,0 +1,21 @@
+[
+  {
+    "id": "2d6422da-15fa-4780-bf4b-b4a4c62dc539",
+    "title": "Hva skal vi spise?",
+    "options": [
+      {
+        "id": "475791c3-a325-4060-b6b0-9a7b2cd1981e",
+        "text": "Pizza",
+        "votes": 0
+      },
+      {
+        "id": "4943be53-79c3-4abd-871d-407a5be7a314",
+        "text": "Sushi",
+        "votes": 0
+      }
+    ],
+    "createdAt": "2026-03-06T19:54:54.358Z",
+    "ownerId": "2c13045e-d327-413a-a808-092c3cfd8a25",
+    "ownerUsername": "testuser"
+  }
+]
