@@ -1,3 +1,4 @@
+import "dotenv/config";
 import app from "./app.mjs";
 import { initDb } from "./storage/db.mjs";
 
