@@ -1,5 +1,5 @@
 ﻿/**
- * Samler data-shapes pÃ¥ ett sted for Ã¥ unngÃ¥ duplikater.
+ * 
  *
  * @typedef {Object} UserPublic
  * @property {string} id
