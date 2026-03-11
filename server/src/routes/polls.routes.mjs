@@ -9,8 +9,8 @@ router.get("/polls", async (req, res, next) => {
   try {
     const result = await pollsService.listPolls();
     res.json(result);
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 });
 
@@ -19,8 +19,8 @@ router.get("/polls/:id/results", async (req, res, next) => {
   try {
     const result = await pollsService.getPollResults(req.params.id);
     res.json(result);
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 });
 
@@ -32,8 +32,8 @@ router.post("/polls", requireAuth(), async (req, res, next) => {
       userId: req.auth.userId,
     });
     res.status(201).json(result);
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 });
 

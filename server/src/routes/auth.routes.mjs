@@ -8,8 +8,8 @@ router.post("/auth/login", async (req, res, next) => {
   try {
     const result = await authService.login(req.body);
     res.json(result);
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 });
 
@@ -17,8 +17,8 @@ router.get("/auth/me", requireAuth(), async (req, res, next) => {
   try {
     const result = await authService.me({ userId: req.auth.userId });
     res.json(result);
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 });
 
@@ -26,8 +26,8 @@ router.post("/auth/logout", requireAuth(), async (req, res, next) => {
   try {
     const result = await authService.logout({ token: req.auth.token });
     res.json(result);
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 });
 

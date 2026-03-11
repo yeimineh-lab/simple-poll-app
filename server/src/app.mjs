@@ -18,7 +18,7 @@ import errorHandler from "./middleware/errorHandler.mjs";
 import { PUBLIC_DIR } from "./config/paths.mjs";
 
 // Language (i18n)
-import { getLanguage, t } from "./i18n/index.js";
+import { getLanguage, t } from "./i18n/index.mjs";
 
 const app = express();
 

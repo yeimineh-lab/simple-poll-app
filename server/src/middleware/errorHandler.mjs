@@ -1,7 +1,7 @@
-﻿export default function errorHandler(err, req, res, next) {
-  console.error(err);
+﻿export default function errorHandler(error, req, res, next) {
+  console.error(error);
 
-  const status = err.status ?? 500;
+  const status = error.status ?? 500;
 
   let message;
 
@@ -9,7 +9,7 @@
     message = req.t ? req.t("errors.serverError") : "Internal server error";
   } else {
     message =
-      err.message ||
+      error.message ||
       (req.t ? req.t("errors.invalidInput") : "Unexpected error");
   }
 

@@ -1,11 +1,9 @@
 import bcrypt from "bcryptjs";
 import crypto from "node:crypto";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 
-import { createJsonStore } from "../storage/jsonStore.mjs";
 import { deleteSession } from "../services/sessions.service.mjs";
 import { ValidationError, ConflictError, NotFoundError } from "../middleware/errors.mjs";
+import { normalizeUsername } from "../utils/userUtils.mjs";
 
 import {
   getUserByUsername,
@@ -15,17 +13,7 @@ import {
   deleteUserById,
 } from "../storage/users.pgStore.mjs";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Behold polls i JSON (ingen DB-migrering for polls i denne oppgaven)
-const pollsFile = path.join(__dirname, "..", "..", "data", "polls.json");
-const pollsStore = createJsonStore(pollsFile, []);
-
-function normalizeUsername(u) {
-  return String(u || "").trim().toLowerCase();
-}
-
+// Create a new user with validation, password hashing, and consent tracking
 export async function createUser(input) {
   const username = normalizeUsername(input?.username);
   const password = String(input?.password || "");
@@ -67,28 +55,19 @@ export async function createUser(input) {
     consent,
   });
 
-  // created inneholder trygge felt (ikke passord-hash)
+  // The created object contains safe fields only
   return created;
 }
 
+// Delete the authenticated user
 export async function deleteMe({ userId, token }) {
-  // Slett bruker fra Postgres
   await deleteUserById(userId);
-
-  // Oppdater polls i JSON slik du allerede gjør
-  const polls = await pollsStore.read();
-  const updated = polls.map((p) =>
-    p.ownerId === userId
-      ? { ...p, ownerId: null, ownerUsername: "deleted-user" }
-      : p
-  );
-  await pollsStore.write(updated);
-
   deleteSession(token);
 
   return { ok: true };
 }
 
+// Update the authenticated user's username and/or password
 export async function updateMe({ userId, body }) {
   const patchUsernameRaw = body?.username;
   const patchPasswordRaw = body?.password;
@@ -111,7 +90,7 @@ export async function updateMe({ userId, body }) {
 
   const oldUsername = user.username;
 
-  // Bytte username (må være unik)
+  // If username changes, it must still be unique
   if (patchUsername && patchUsername !== oldUsername) {
     const taken = await getUserByUsername(patchUsername);
     if (taken && taken.id !== userId) {
@@ -119,7 +98,7 @@ export async function updateMe({ userId, body }) {
     }
   }
 
-  // Bytte passord
+  // Hash a new password only when one is provided
   const newPasswordHash = patchPassword ? await bcrypt.hash(patchPassword, 12) : null;
 
   const updatedUser = await updateUser({
@@ -129,15 +108,6 @@ export async function updateMe({ userId, body }) {
   });
 
   if (!updatedUser) throw new NotFoundError("User not found");
-
-  // Hvis username endret, oppdater polls som eies av brukeren
-  if (updatedUser.username !== oldUsername) {
-    const polls = await pollsStore.read();
-    const updatedPolls = polls.map((p) =>
-      p.ownerId === userId ? { ...p, ownerUsername: updatedUser.username } : p
-    );
-    await pollsStore.write(updatedPolls);
-  }
 
   return updatedUser;
 }

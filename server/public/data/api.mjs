@@ -1,5 +1,5 @@
 ﻿/**
- * Single fetch gateway â€“ all requests go through here.
+ * Single fetch gateway - all requests go through here.
  * Relative URLs only.
  *
  * IMPORTANT: This file contains the ONLY fetch() in the client.
@@ -23,10 +23,11 @@ export async function request(path, { method = "GET", body, token } = {}) {
       data && typeof data === "object" && "error" in data
         ? String(data.error)
         : String(data);
-    const err = new Error(msg);
-    err.status = res.status;
-    err.data = data;
-    throw err;
+
+    const error = new Error(msg);
+    error.status = res.status;
+    error.data = data;
+    throw error;
   }
 
   return data;

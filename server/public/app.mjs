@@ -6,39 +6,14 @@ import "./ui/user-create.mjs";
 import "./ui/user-edit.mjs";
 import "./ui/user-delete.mjs";
 
-// Import translation files for English and Norwegian
-import en from "./i18n/en.mjs";
-import no from "./i18n/no.mjs";
+// Import shared i18n functions
+import { t, detectLanguage } from "./i18n/index.mjs";
 
 // Select the HTML element where system status will be displayed
 const statusEl = document.querySelector("#status");
 
-// Store all translations in a single object
-const translations = { en, no };
-
-
-// Detect the user's language from the browser
-function detectLanguage() {
-  const lang = navigator.language.toLowerCase();
-
-  // Use Norwegian if the browser language starts with no, nb, or nn
-  if (lang.startsWith("no") || lang.startsWith("nb") || lang.startsWith("nn")) {
-    return "no";
-  }
-
-  // Default to English
-  return "en";
-}
-
 // Store the detected language
 const currentLang = detectLanguage();
-
-
-// Return the translated text for a given key
-function t(key) {
-  return translations[currentLang]?.[key] ?? key;
-}
-
 
 // Escape HTML characters to prevent XSS
 function escapeHtml(s) {
@@ -50,7 +25,6 @@ function escapeHtml(s) {
     "'": "&#39;",
   }[c]));
 }
-
 
 // Apply translations to HTML elements using data-i18n attributes
 function applyTranslations() {
@@ -76,7 +50,6 @@ function applyTranslations() {
     element.textContent = t(key);
   });
 }
-
 
 // Render the application status panel
 function renderStatus() {
@@ -109,7 +82,6 @@ function renderStatus() {
   `;
 }
 
-
 // Register the service worker for caching and offline support
 async function registerServiceWorker() {
   if (!("serviceWorker" in navigator)) return;
@@ -121,7 +93,6 @@ async function registerServiceWorker() {
     console.error("Service worker registration failed:", error);
   }
 }
-
 
 // Initialize translations, status rendering, and service worker registration
 function init() {

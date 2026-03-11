@@ -1,5 +1,5 @@
-import en from "./en.js";
-import no from "./no.js";
+import en from "./en.mjs";
+import no from "./no.mjs";
 
 const translations = { en, no };
 

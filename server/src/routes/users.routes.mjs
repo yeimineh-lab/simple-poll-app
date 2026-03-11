@@ -9,8 +9,8 @@ router.post("/users", async (req, res, next) => {
   try {
     const user = await usersService.createUser(req.body);
     res.status(201).json(user);
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 });
 
@@ -22,8 +22,8 @@ router.patch("/users/me", requireAuth(), async (req, res, next) => {
       body: req.body,
     });
     res.json(result);
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 });
 
@@ -35,8 +35,8 @@ router.delete("/users/me", requireAuth(), async (req, res, next) => {
       token: req.auth.token,
     });
     res.json(result);
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 });
 
