@@ -1,7 +1,5 @@
-// Name of the cache used by the service worker
-const CACHE_NAME = "poll-app-v1";
+const CACHE_NAME = "poll-app-static-v2";
 
-// Files that should be cached for offline usage
 const ASSETS_TO_CACHE = [
   "/",
   "/index.html",
@@ -10,65 +8,90 @@ const ASSETS_TO_CACHE = [
   "/offline.html",
   "/manifest.webmanifest",
   "/icons/icon-192.png",
-  "/icons/icon-512.png"
+  "/icons/icon-512.png",
 ];
 
-// Install event - cache all required files
+// Bare cache app-shell/statisk innhold.
+// IKKE cache API-kall.
+function isStaticAsset(requestUrl) {
+  const url = new URL(requestUrl);
+
+  if (url.origin !== self.location.origin) return false;
+  if (url.pathname.startsWith("/api/")) return false;
+
+  return ASSETS_TO_CACHE.includes(url.pathname);
+}
+
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(ASSETS_TO_CACHE);
-    })
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS_TO_CACHE)),
   );
 
-  // Activate the new service worker immediately
   self.skipWaiting();
 });
 
-// Activate event - remove old caches
 self.addEventListener("activate", (event) => {
   event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(
+    (async () => {
+      const keys = await caches.keys();
+
+      await Promise.all(
         keys
           .filter((key) => key !== CACHE_NAME)
-          .map((key) => caches.delete(key))
-      )
-    )
-  );
+          .map((key) => caches.delete(key)),
+      );
 
-  // Take control of all pages immediately
-  self.clients.claim();
+      await self.clients.claim();
+    })(),
+  );
 });
 
-// Fetch event - serve cached files when offline
 self.addEventListener("fetch", (event) => {
-  if (event.request.method !== "GET") return;
+  const { request } = event;
 
-  event.respondWith(
-    fetch(event.request)
-      .then((response) => {
-        // Clone the response so it can be stored in cache
-        const responseClone = response.clone();
+  // Bare håndter GET
+  if (request.method !== "GET") return;
 
-        caches.open(CACHE_NAME).then((cache) => {
-          cache.put(event.request, responseClone);
-        });
+  const url = new URL(request.url);
 
+  // ALDRI cache eller avskjær API-kall
+  if (url.pathname.startsWith("/api/")) {
+    return;
+  }
+
+  // Navigasjon: prøv nett først, fallback til offline-side
+  if (request.mode === "navigate") {
+    event.respondWith(
+      (async () => {
+        try {
+          return await fetch(request);
+        } catch {
+          const offline = await caches.match("/offline.html");
+          return (
+            offline ||
+            new Response("Offline", {
+              status: 503,
+              headers: { "Content-Type": "text/plain" },
+            })
+          );
+        }
+      })(),
+    );
+    return;
+  }
+
+  // Kun kjente statiske filer: cache first
+  if (isStaticAsset(request.url)) {
+    event.respondWith(
+      (async () => {
+        const cached = await caches.match(request);
+        if (cached) return cached;
+
+        const response = await fetch(request);
+        const cache = await caches.open(CACHE_NAME);
+        cache.put(request, response.clone());
         return response;
-      })
-      .catch(async () => {
-        // If network fails, try to return cached version
-        const cachedResponse = await caches.match(event.request);
-
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-
-        // If navigating and nothing cached, show offline page
-        if (event.request.mode === "navigate") {
-          return caches.match("/offline.html");
-        }
-      })
-  );
+      })(),
+    );
+  }
 });

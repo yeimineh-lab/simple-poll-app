@@ -68,7 +68,7 @@ class UserEdit extends HTMLElement {
     this.shadowRoot.innerHTML = `
       <link rel="stylesheet" href="../app.css">
       <section class="panel">
-        <h2>${t("loginEdit")}</h2>
+        <h2>Profile settings</h2>
 
         ${error ? `<p class="form-error">${error}</p>` : ""}
 
@@ -83,7 +83,6 @@ class UserEdit extends HTMLElement {
 
           <div class="row">
             <button class="primary" type="submit" ${!loggedIn || status === "loading" ? "disabled" : ""}>${t("saveChanges")}</button>
-            <button type="button" id="logoutBtn" ${!loggedIn || status === "loading" ? "disabled" : ""}>${t("logout")}</button>
             <button class="danger" type="button" id="deleteBtn" ${!loggedIn || status === "loading" ? "disabled" : ""}>${t("deleteMyAccount")}</button>
           </div>
         </form>
@@ -91,7 +90,7 @@ class UserEdit extends HTMLElement {
     `;
 
     this.bindEditForm();
-    this.shadowRoot.querySelector("#logoutBtn").onclick = () => userStore.logout();
+
     this.shadowRoot.querySelector("#deleteBtn").onclick = async () => {
       if (!confirm(t("confirmDelete"))) return;
       await userStore.deleteMe();

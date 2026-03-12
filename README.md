@@ -164,4 +164,3 @@ Results:
 - Best Practices: **100**
 - SEO: **90**
 
-This meets the assignment requirement of **minimum 90 accessibility score**.

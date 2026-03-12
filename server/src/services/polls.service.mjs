@@ -1,5 +1,10 @@
 import { getUserById } from "../storage/users.pgStore.mjs";
-import { insertPoll, listPollRows, getPollById } from "../storage/polls.pgStore.mjs";
+import {
+  insertPoll,
+  listPollRows,
+  getPollById,
+  deletePollById,
+} from "../storage/polls.pgStore.mjs";
 import { ValidationError, NotFoundError } from "../middleware/errors.mjs";
 import { pool } from "../storage/db.mjs";
 
@@ -78,11 +83,34 @@ export async function getPollResults(pollId) {
     poll: {
       id: poll.id,
       title: poll.title,
+      createdBy: poll.owner_id,
+      ownerUsername: poll.owner_username,
       options: options.map((text, index) => ({
         optionIndex: index,
         text,
         votes: counts.get(index) ?? 0,
       })),
     },
+  };
+}
+
+export async function deletePoll({ pollId, userId }) {
+  const poll = await getPollById(pollId);
+
+  if (!poll) {
+    throw new NotFoundError("Poll not found");
+  }
+
+  if (String(poll.owner_id) !== String(userId)) {
+    throw new ValidationError("You can only delete your own polls.");
+  }
+
+  await deletePollById(pollId);
+
+  return {
+    id: poll.id,
+    title: poll.title,
+    createdBy: poll.owner_id,
+    ownerUsername: poll.owner_username,
   };
 }

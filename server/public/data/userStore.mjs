@@ -24,30 +24,48 @@ class UserStore extends EventTarget {
     }
   }
 
-  async bootstrap() {
-    if (!this.state.token) return null;
-
+  #resetAuthState() {
+    this.#saveToken(null);
     this.#set({
-      status: "loading",
+      token: null,
+      me: null,
+      status: "idle",
       error: null,
-      lastAction: { name: "bootstrap" },
     });
+  }
 
-    try {
-      const me = await request("/api/v1/auth/me", { token: this.state.token });
-      this.#set({
-        me,
-        status: "idle",
-        lastAction: { name: "bootstrap", ok: true, result: me },
-      });
-      return me;
-    } catch (error) {
-      this.#saveToken(null);
+  async bootstrap() {
+    if (!this.state.token) {
       this.#set({
         token: null,
         me: null,
         status: "idle",
         error: null,
+        lastAction: { name: "bootstrap", ok: true, skipped: true },
+      });
+      return null;
+    }
+
+    this.#set({
+      status: "loading",
+      error: null,
+      lastAction: { name: "bootstrap", endpoint: "GET /api/v1/auth/me" },
+    });
+
+    try {
+      const me = await request("/api/v1/auth/me", { token: this.state.token });
+
+      this.#set({
+        me,
+        status: "idle",
+        error: null,
+        lastAction: { name: "bootstrap", ok: true, result: me },
+      });
+
+      return me;
+    } catch (error) {
+      this.#resetAuthState();
+      this.#set({
         lastAction: { name: "bootstrap", ok: false },
       });
       return null;
@@ -69,6 +87,7 @@ class UserStore extends EventTarget {
 
       this.#set({
         status: "idle",
+        error: null,
         lastAction: { name: "signup", ok: true, result: created },
       });
 
@@ -96,17 +115,30 @@ class UserStore extends EventTarget {
         body: payload,
       });
 
-      this.#saveToken(data.token);
+      const token = data?.token;
+      const meFromLogin = data?.user ?? data?.me ?? null;
+
+      if (!token) {
+        throw new Error("Login response mangler token.");
+      }
+
+      this.#saveToken(token);
 
       this.#set({
-        token: data.token,
-        me: data.user,
+        token,
+        me: meFromLogin,
         status: "idle",
-        lastAction: { name: "login", ok: true, result: data.user },
+        error: null,
+        lastAction: { name: "login", ok: true, result: meFromLogin },
       });
+
+      if (!meFromLogin) {
+        await this.loadMe();
+      }
 
       return data;
     } catch (error) {
+      this.#resetAuthState();
       this.#set({
         status: "error",
         error: error?.message ?? String(error),
@@ -131,6 +163,7 @@ class UserStore extends EventTarget {
       this.#set({
         me,
         status: "idle",
+        error: null,
         lastAction: { name: "loadMe", ok: true, result: me },
       });
 
@@ -146,7 +179,7 @@ class UserStore extends EventTarget {
   }
 
   async logout() {
-    if (!this.state.token) return;
+    const token = this.state.token;
 
     this.#set({
       status: "loading",
@@ -155,31 +188,26 @@ class UserStore extends EventTarget {
     });
 
     try {
-      await request("/api/v1/auth/logout", {
-        method: "POST",
-        token: this.state.token,
-      });
-
-      this.#saveToken(null);
-
-      this.#set({
-        token: null,
-        me: null,
-        status: "idle",
-        lastAction: { name: "logout", ok: true },
-      });
-    } catch (error) {
-      this.#set({
-        status: "error",
-        error: error?.message ?? String(error),
-        lastAction: { name: "logout", ok: false },
-      });
-      throw error;
+      if (token) {
+        await request("/api/v1/auth/logout", {
+          method: "POST",
+          token,
+        });
+      }
+    } catch (_) {
+      // Selv om backend logout feiler, logger vi fortsatt ut lokalt.
     }
+
+    this.#resetAuthState();
+    this.#set({
+      lastAction: { name: "logout", ok: true },
+    });
   }
 
   async updateMe(patch) {
-    if (!this.state.token) throw new Error("Du må være logget inn for å redigere.");
+    if (!this.state.token) {
+      throw new Error("Du må være logget inn for å redigere.");
+    }
 
     this.#set({
       status: "loading",
@@ -197,6 +225,7 @@ class UserStore extends EventTarget {
       this.#set({
         me,
         status: "idle",
+        error: null,
         lastAction: { name: "updateMe", ok: true, result: me },
       });
 
@@ -212,7 +241,9 @@ class UserStore extends EventTarget {
   }
 
   async deleteMe() {
-    if (!this.state.token) throw new Error("Du må være logget inn for å slette konto.");
+    if (!this.state.token) {
+      throw new Error("Du må være logget inn for å slette konto.");
+    }
 
     this.#set({
       status: "loading",
@@ -226,12 +257,8 @@ class UserStore extends EventTarget {
         token: this.state.token,
       });
 
-      this.#saveToken(null);
-
+      this.#resetAuthState();
       this.#set({
-        token: null,
-        me: null,
-        status: "idle",
         lastAction: { name: "deleteMe", ok: true, result: out },
       });
 

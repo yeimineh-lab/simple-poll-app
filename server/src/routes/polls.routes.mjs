@@ -5,7 +5,7 @@ import * as pollsService from "../services/polls.service.mjs";
 const router = express.Router();
 
 // GET /api/v1/polls
-router.get("/polls", async (req, res, next) => {
+router.get("/polls", requireAuth(), async (req, res, next) => {
   try {
     const result = await pollsService.listPolls();
     res.json(result);
@@ -15,7 +15,7 @@ router.get("/polls", async (req, res, next) => {
 });
 
 // GET /api/v1/polls/:id/results
-router.get("/polls/:id/results", async (req, res, next) => {
+router.get("/polls/:id/results", requireAuth(), async (req, res, next) => {
   try {
     const result = await pollsService.getPollResults(req.params.id);
     res.json(result);
@@ -32,6 +32,20 @@ router.post("/polls", requireAuth(), async (req, res, next) => {
       userId: req.auth.userId,
     });
     res.status(201).json(result);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// DELETE /api/v1/polls/:id
+router.delete("/polls/:id", requireAuth(), async (req, res, next) => {
+  try {
+    const result = await pollsService.deletePoll({
+      pollId: req.params.id,
+      userId: req.auth.userId,
+    });
+
+    res.json({ ok: true, poll: result });
   } catch (error) {
     next(error);
   }

@@ -1,16 +1,37 @@
-const sessions = new Map();
+import { pool } from "../storage/db.mjs";
 
-/**
- * token -> userId
- */
-export function createSession(token, userId) {
-  sessions.set(token, userId);
+export async function createSession(token, userId) {
+  await pool.query(
+    `
+      INSERT INTO sessions (token, user_id)
+      VALUES ($1, $2)
+      ON CONFLICT (token) DO UPDATE
+      SET user_id = EXCLUDED.user_id
+    `,
+    [token, userId],
+  );
 }
 
-export function deleteSession(token) {
-  sessions.delete(token);
+export async function getSessionUserId(token) {
+  const result = await pool.query(
+    `
+      SELECT user_id
+      FROM sessions
+      WHERE token = $1
+      LIMIT 1
+    `,
+    [token],
+  );
+
+  return result.rows[0]?.user_id ?? null;
 }
 
-export function getSessionUserId(token) {
-  return sessions.get(token) || null;
+export async function deleteSession(token) {
+  await pool.query(
+    `
+      DELETE FROM sessions
+      WHERE token = $1
+    `,
+    [token],
+  );
 }
