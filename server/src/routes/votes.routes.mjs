@@ -10,7 +10,7 @@ const router = express.Router();
 // Create or update a vote for a poll
 router.post("/polls/:id/vote", requireAuth(), async (req, res, next) => {
   try {
-    const pollId = req.params.id;
+    const pollId = Number(req.params.id);
     const userId = req.auth.userId;
     const optionIndex = Number(req.body.optionIndex);
 
